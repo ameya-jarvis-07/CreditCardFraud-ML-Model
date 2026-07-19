@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Credit Card Fraud Detection — AI-powered real-time fraud prediction with machine learning." />
+  <title>Credit Card Fraud Detection | AI Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+
+<body>
+  <!-- ===================== ANIMATED BACKGROUND ===================== -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">FraudShield</span>
+          <span class="brand-tagline">AI Fraud Detection</span>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span>Model Active</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="site-main">
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1 class="hero-title">
+        Detect Fraud <span class="gradient-text">Instantly</span>
+      </h1>
+      <p class="hero-sub">
+        Enter the transaction features below. Our XGBoost model — trained on
+        284,807 real-world transactions — will classify the transaction in
+        milliseconds.
+      </p>
+
+      <!-- Stats Strip -->
+      <div class="stats-strip" role="list">
+        <div class="stat-card" role="listitem">
+          <span class="stat-value">284K+</span>
+          <span class="stat-label">Transactions Trained</span>
+        </div>
+        <div class="stat-card" role="listitem">
+          <span class="stat-value">99.97%</span>
+          <span class="stat-label">Accuracy</span>
+        </div>
+        <div class="stat-card" role="listitem">
+          <span class="stat-value">~0.99</span>
+          <span class="stat-label">ROC AUC</span>
+        </div>
+        <div class="stat-card" role="listitem">
+          <span class="stat-value">30</span>
+          <span class="stat-label">Input Features</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PREDICTION FORM ===================== -->
+    <section class="form-section">
+      <div class="glass-card">
+
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            Transaction Features
+          </h2>
+          <p class="card-subtitle">All 30 numerical features are required for prediction</p>
+        </div>
+
+        <form id="predictionForm" novalidate>
+
+          <!-- Time & Amount Row -->
+          <div class="feature-group">
+            <h3 class="group-label">⏱ Transaction Meta</h3>
+            <div class="input-grid input-grid-2">
+
+              <div class="input-wrap">
+                <label class="input-label" for="input-Time">Time <span class="unit">(seconds)</span></label>
+                <input
+                  class="input-field"
+                  type="number"
+                  id="input-Time"
+                  name="Time"
+                  placeholder="e.g. 0"
+                  step="any"
+                  required
+                  aria-required="true"
+                />
+                <span class="input-hint">Seconds elapsed since first transaction</span>
+              </div>
+
+              <div class="input-wrap">
+                <label class="input-label" for="input-Amount">Amount <span class="unit">(USD)</span></label>
+                <input
+                  class="input-field"
+                  type="number"
+                  id="input-Amount"
+                  name="Amount"
+                  placeholder="e.g. 149.62"
+                  step="any"
+                  min="0"
+                  required
+                  aria-required="true"
+                />
+                <span class="input-hint">Transaction amount in USD</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- PCA Features V1–V28 -->
+          <div class="feature-group">
+            <h3 class="group-label">🔬 PCA Features (V1 – V28)</h3>
+            <p class="group-desc">
+              These are principal components obtained by PCA transformation applied for
+              confidentiality. Typical values range from approximately −3 to 3.
+            </p>
+            <div class="input-grid input-grid-4">
+              {% for i in range(1, 29) %}
+              <div class="input-wrap">
+                <label class="input-label" for="input-V{{ i }}">V{{ i }}</label>
+                <input
+                  class="input-field pca-input"
+                  type="number"
+                  id="input-V{{ i }}"
+                  name="V{{ i }}"
+                  placeholder="e.g. 0.00"
+                  step="any"
+                  required
+                  aria-required="true"
+                />
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Action Row -->
+          <div class="form-actions">
+            <button
+              type="button"
+              id="fillSampleBtn"
+              class="btn btn-secondary"
+              aria-label="Fill with a legitimate transaction sample"
+            >
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Sample: Legitimate
+            </button>
+
+            <button
+              type="button"
+              id="fillFraudBtn"
+              class="btn btn-warning"
+              aria-label="Fill with a fraudulent transaction sample"
+            >
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              Sample: Fraudulent
+            </button>
+
+            <button
+              type="button"
+              id="resetBtn"
+              class="btn btn-ghost"
+              aria-label="Reset all input fields"
+            >
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              Reset
+            </button>
+
+            <button
+              type="submit"
+              id="predictBtn"
+              class="btn btn-primary"
+              aria-label="Submit transaction for fraud prediction"
+            >
+              <span class="btn-text">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Predict Now
+              </span>
+              <span class="btn-spinner" aria-hidden="true">
+                <svg class="spinner-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                Predicting…
+              </span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- ===================== RESULT PANEL ===================== -->
+    <section id="resultSection" class="result-section" aria-live="polite" hidden>
+      <div class="glass-card result-card">
+
+        <!-- Result Header -->
+        <div class="result-header">
+          <div id="resultIcon" class="result-icon" aria-hidden="true"></div>
+          <div class="result-meta">
+            <h2 id="resultTitle" class="result-title"></h2>
+            <p id="resultSubtitle" class="result-subtitle"></p>
+          </div>
+          <div id="resultBadge" class="result-badge"></div>
+        </div>
+
+        <!-- Probability Gauge -->
+        <div class="gauge-section">
+          <div class="gauge-labels">
+            <span>Legitimate</span>
+            <span>Fraud Probability</span>
+            <span>Fraud</span>
+          </div>
+          <div class="gauge-bar" role="progressbar" aria-label="Fraud probability bar">
+            <div id="gaugeTrack" class="gauge-track"></div>
+            <div id="gaugeFill" class="gauge-fill" style="width: 0%"></div>
+            <div id="gaugeThumb" class="gauge-thumb" style="left: 0%"></div>
+          </div>
+          <div class="gauge-value-row">
+            <span class="gauge-pct" id="fraudPct">0%</span>
+            <span class="gauge-label-sm">Fraud Probability</span>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Prediction</span>
+            <span id="metricPrediction" class="metric-value"></span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Fraud Probability</span>
+            <span id="metricFraudProb" class="metric-value"></span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Model Confidence</span>
+            <span id="metricConfidence" class="metric-value"></span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Risk Level</span>
+            <span id="metricRisk" class="metric-value"></span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================== ERROR TOAST ===================== -->
+    <div id="errorToast" class="error-toast" role="alert" aria-live="assertive" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span id="errorMessage"></span>
+      <button id="closeToast" class="toast-close" aria-label="Close error">✕</button>
+    </div>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <p>
+      Built with ❤️ using <strong>XGBoost</strong>, <strong>Scikit-Learn</strong> &amp; <strong>Flask</strong> &nbsp;|&nbsp;
+      Dataset: <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud" target="_blank" rel="noopener">Kaggle Credit Card Fraud</a>
+    </p>
+    <p class="footer-note">For educational and portfolio purposes only. Not for production financial use.</p>
+  </footer>
+
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
